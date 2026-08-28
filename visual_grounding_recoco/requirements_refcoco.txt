@@ -1,0 +1,13 @@
+# Tested lineage: CUDA 12.1+ instance. No quantization here — the 11B model loads in bf16,
+# which needs roughly 22GB of VRAM for weights alone (before LoRA optimizer states and
+# activations). Budget for an A100-40GB or larger; a 24GB card is very likely to OOM.
+
+torch>=2.3
+transformers>=4.46          # needs MllamaForConditionalGeneration + Llama-3.2-Vision chat template
+accelerate>=0.34
+peft>=0.13
+datasets>=2.20
+huggingface_hub>=0.25
+pillow
+nltk
+numpy
