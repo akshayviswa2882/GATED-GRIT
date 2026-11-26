@@ -9,21 +9,21 @@ Gated GRIT is an experimental extension of **GRIT (Geometric Reprojection Instru
 
 ---
 
-## Table of contents
+## Table of Contents
 
 - [Motivation](#motivation)
-- [Method overview](#method-overview)
-- [SuperGate mechanism](#supergate-mechanism)
-- [Models and tasks](#models-and-tasks)
+- [Method Overview](#method-overview)
+- [SuperGate Mechanism](#supergate-mechanism)
+- [Models and Tasks](#models-and-tasks)
 - [Baselines](#baselines)
-- [Preliminary results](#preliminary-results)
-- [Experimental protocol](#experimental-protocol)
-- [Repository organization](#repository-organization)
+- [Preliminary Results](#preliminary-results)
+- [Experimental Protocol](#experimental-protocol)
+- [Repository Organization](#repository-organization)
 - [Setup](#setup)
-- [Running an experiment](#running-an-experiment)
+- [Running an Experiment](#running-an-experiment)
 - [Evaluation](#evaluation)
-- [Reproducibility notes](#reproducibility-notes)
-- [Limitations and current status](#limitations-and-current-status)
+- [Reproducibility Notes](#reproducibility-notes)
+- [Limitations and Current Status](#limitations-and-current-status)
 - [Citation](#citation)
 - [Acknowledgements](#acknowledgements)
 
@@ -41,7 +41,7 @@ The central idea is to use curvature-derived information to construct rank-wise 
 
 The project studies this approach in multimodal settings, where adaptation involves both visual and language components of vision-language models.
 
-## Method overview
+## Method Overview
 
 Gated GRIT builds on the GRIT optimization pipeline. At a high level, the implementation follows these steps:
 
@@ -54,40 +54,28 @@ Gated GRIT builds on the GRIT optimization pipeline. At a high level, the implem
 
 The implementation is designed to retain the parameter efficiency of LoRA while using curvature information to guide optimization in the low-rank subspace.
 
-
-## SuperGate mechanism
+## SuperGate Mechanism
 
 For a LoRA update, the weight matrix is expressed as:
 
-$$
-\Delta W = BA
-$$
+`ΔW = BA`
 
 The implementation maintains curvature-related covariance estimates for the low-rank factors. The SuperGate mechanism uses eigenvalue information from the rank-space covariance associated with the LoRA-A side.
 
-Let the non-negative eigenvalues be $\lambda_1, \lambda_2, \ldots, \lambda_r$. The normalized rank-wise gate values are computed as:
+Let the non-negative eigenvalues be λ₁, λ₂, ..., λᵣ. The normalized rank-wise gate values are computed as:
 
-$$
-g_i = \frac{\lambda_i}{\sum_{j=1}^{r}\lambda_j}
-$$
+`gᵢ = λᵢ / Σⱼ λⱼ`
 
-A configurable lower-floor operation is subsequently applied, followed by renormalization. The resulting gate vector $g$ contains one value for each LoRA rank direction.
+A configurable lower-floor operation is subsequently applied, followed by renormalization. The resulting gate vector `g` contains one value for each LoRA rank direction.
 
 After K-FAC preconditioning, the implementation applies the same rank-wise weights to the corresponding dimensions of both LoRA factors:
 
-$$
-\widetilde{\nabla A}_{i,:}
-\leftarrow
-g_i \widetilde{\nabla A}_{i,:}
-$$
+```text
+∇Ã[i, :] = g[i] × ∇Ã[i, :]
+∇B̃[:, i] = g[i] × ∇B̃[:, i]
+```
 
-$$
-\widetilde{\nabla B}_{:,i}
-\leftarrow
-g_i \widetilde{\nabla B}_{:,i}
-$$
-
-Here, $\widetilde{\nabla A}$ and $\widetilde{\nabla B}$ denote the preconditioned gradients.
+Here, ∇Ã and ∇B̃ denote the preconditioned gradients.
 
 In the current implementation, the gate vector is derived from curvature statistics rather than being introduced as an independently learned trainable parameter.
 
@@ -95,25 +83,24 @@ The gates are associated with individual LoRA modules and are refreshed when the
 
 **Important distinction:** SuperGate is a gradient-modulation mechanism, not hard pruning of LoRA ranks. Effective-rank and sparsity analyses are separate diagnostics of the resulting gate distributions.
 
-
-## Models and tasks
+## Models and Tasks
 
 The experimental notebooks cover the following model and task combinations.
 
-### Vision-language models
+### Vision-Language Models
 
 - [Gemma 3 4B IT](https://huggingface.co/google/gemma-3-4b-it)
 - [Llama 3.2 11B Vision Instruct](https://huggingface.co/meta-llama/Llama-3.2-11B-Vision-Instruct)
 
 Access to gated model repositories may require accepting the model terms on Hugging Face.
 
-### Tasks and datasets
+### Tasks and Datasets
 
 | Task | Dataset | Purpose |
 |---|---|---|
-| Image captioning | [bitmind/MS-COCO](https://huggingface.co/datasets/bitmind/MS-COCO) | Generate natural-language descriptions of image content |
-| Visual question answering | [VQAv2](https://huggingface.co/datasets/HuggingFaceM4/VQAv2) | Answer questions grounded in image content |
-| Referring-expression / region description | [RefCOCO](https://huggingface.co/datasets/lmms-lab-encoder/RefCOCO) | Describe the image region specified by a bounding box |
+| Image Captioning | [bitmind/MS-COCO](https://huggingface.co/datasets/bitmind/MS-COCO) | Generate natural-language descriptions of image content |
+| Visual Question Answering | [VQAv2](https://huggingface.co/datasets/HuggingFaceM4/VQAv2) | Answer questions grounded in image content |
+| Referring-Expression / Region Description | [RefCOCO](https://huggingface.co/datasets/lmms-lab-encoder/RefCOCO) | Describe the image region specified by a bounding box |
 
 The exact split handling and preprocessing are defined in the corresponding experiment notebook. For RefCOCO, the implementation uses the dataset's region annotations and referring expressions; the prompt asks the model to produce a short description of the selected region.
 
@@ -128,11 +115,11 @@ The experimental comparison includes:
 
 For a meaningful comparison, methods should use matched model checkpoints, dataset subsets, preprocessing, random seeds, target modules, training budgets, generation settings, and evaluation code. Any deviation should be reported alongside the results.
 
-## Preliminary results
+## Preliminary Results
 
 The following result is from an early **Gemma 3 4B IT image-captioning smoke test** on `bitmind/MS-COCO`.
 
-### Gated GRIT — preliminary smoke test
+### Gated GRIT — Preliminary Smoke Test
 
 | Setting | Value |
 |---|---:|
@@ -145,19 +132,21 @@ The following result is from an early **Gemma 3 4B IT image-captioning smoke tes
 | Gradient accumulation | 4 |
 | Effective batch size | 4 |
 | Training steps | 24 |
-| Learning rate | \(2 \times 10^{-6}\) |
+| Learning rate | `2 × 10⁻⁶` |
 | Precision | BF16 |
 | K-FAC update frequency | 10 steps |
 | Configured reprojection frequency | 300 steps |
 
-| Test metric | Preliminary value |
+### Test Metrics
+
+| Metric | Preliminary Value |
 |---|---:|
 | Test loss | 25.21310 |
 | ROUGE-L | 0.3376 |
 | METEOR | 0.3212 |
 | BERTScore F1 | 0.6669 |
 
-**How to interpret these numbers**
+**How to interpret these numbers:**
 
 - The test set contained only four examples. These values are highly sensitive to individual examples and should not be treated as reliable estimates of generalization.
 - The run completed 24 optimizer steps. It therefore did not reach the configured 300-step reprojection interval. It is an implementation smoke test, not evidence of the full reprojection schedule's effect.
@@ -166,11 +155,11 @@ The following result is from an early **Gemma 3 4B IT image-captioning smoke tes
 
 No claim of benchmark superiority is made from this preliminary run.
 
-## Experimental protocol
+## Experimental Protocol
 
 The larger experimental protocol being used for the main evaluation is:
 
-| Component | Planned setting |
+| Component | Planned Setting |
 |---|---|
 | Training split | 8,000 examples |
 | Validation split | 1,000 examples |
@@ -185,22 +174,15 @@ The larger experimental protocol being used for the main evaluation is:
 
 With 8,000 training examples, an effective batch size of 4, and three epochs, the nominal training budget is:
 
-$$
-\text{Total steps}
-=
-\frac{8000}{4}\times 3
-=
-6000
-$$
+**Total optimizer steps = (8,000 / 4) × 3 = 6,000 steps**
 
 This assumes the full training split is retained and the dataloader does not drop additional examples.
-
 
 The validation split is retained for evaluation or analysis where applicable, but the final training runs do not perform validation-based checkpoint selection. Final test evaluation is conducted after training using the same generation and metric procedures across methods.
 
 The precise hyperparameters for each method and task are recorded in the experiment notebooks. They should be treated as the source of truth for reproducing a particular run.
 
-## Repository organization
+## Repository Organization
 
 The experiments are notebook-based. Notebooks are named by method, model, and task where possible. A suggested organization for a cleaned public release is:
 
@@ -236,7 +218,7 @@ pip install git+https://github.com/AIPHES/emnlp19-moverscore.git
 
 The notebooks may install or patch additional dependencies for compatibility with the runtime. Exact package versions should be pinned in a release-specific `requirements.txt` after the environment used for the final experiments has been frozen and tested.
 
-### Hugging Face authentication
+### Hugging Face Authentication
 
 Some model and dataset repositories require authentication or acceptance of access terms.
 
@@ -255,22 +237,22 @@ hf auth whoami
 
 Do not hard-code a Hugging Face token in a notebook or commit it to GitHub. Use the environment's cached credentials or a secret-management mechanism.
 
-## Running an experiment
+## Running an Experiment
 
 1. Clone the repository and install the dependencies.
 2. Configure Hugging Face access for the model and dataset being used.
 3. Open the notebook corresponding to the desired method, model, and task.
 4. Review the configuration cell, especially:
-   - model identifier;
-   - dataset and split selection;
-   - random seed;
-   - LoRA rank, alpha, dropout, and target modules;
-   - batch size and gradient accumulation;
-   - learning rate and number of epochs;
-   - K-FAC update and inversion settings;
-   - reprojection frequency and warmup;
-   - gate floor and rank-adaptation settings;
-   - generation parameters and evaluation metrics.
+   - Model identifier
+   - Dataset and split selection
+   - Random seed
+   - LoRA rank, alpha, dropout, and target modules
+   - Batch size and gradient accumulation
+   - Learning rate and number of epochs
+   - K-FAC update and inversion settings
+   - Reprojection frequency and warmup
+   - Gate floor and rank-adaptation settings
+   - Generation parameters and evaluation metrics
 5. Run the notebook cells in order.
 6. Preserve the generated metrics, configuration, logs, and gate-analysis artifacts with the run identifier.
 
@@ -290,7 +272,7 @@ Metric availability varies by task and notebook. Values should only be compared 
 
 For VQA, report the exact accuracy implementation used by the notebook. For region-description tasks such as RefCOCO, simple normalized exact-match accuracy is only a coarse diagnostic because multiple valid referring expressions may describe the same region.
 
-## Reproducibility notes
+## Reproducibility Notes
 
 For controlled comparisons:
 
@@ -305,17 +287,17 @@ For controlled comparisons:
 
 Exact bitwise reproducibility is not guaranteed across GPU architectures, CUDA/PyTorch versions, or nondeterministic kernels.
 
-## Limitations and current status
+## Limitations and Current Status
 
 Gated GRIT is an ongoing research project. The current repository contains experimental implementations and preliminary results. The small-split numbers above are intended to show that the pipeline has been exercised, not to establish a final performance ranking.
 
 The main evaluation still needs to establish:
 
-- whether the SuperGate mechanism provides consistent benefits under matched full-scale comparisons;
-- how gate distributions differ across vision and language components;
-- how gate behaviour relates to effective rank and curvature information;
-- how results vary across tasks, model families, and random seeds;
-- the optimization and runtime overhead introduced by curvature estimation and gating.
+- Whether the SuperGate mechanism provides consistent benefits under matched full-scale comparisons.
+- How gate distributions differ across vision and language components.
+- How gate behaviour relates to effective rank and curvature information.
+- How results vary across tasks, model families, and random seeds.
+- The optimization and runtime overhead introduced by curvature estimation and gating.
 
 The manuscript and full experimental analysis are in preparation. Final claims should be based on completed, controlled experiments rather than the preliminary smoke tests.
 
@@ -327,13 +309,13 @@ Gated GRIT is based on the GRIT line of work. Please also cite the relevant data
 
 ```bibtex
 @misc{saha2026gritgeometryawarepeft,
-      title={GRIT -- Geometry-Aware PEFT with K-FACPreconditioning, Fisher-Guided Reprojection, andDynamic Rank Adaptation}, 
+      title={GRIT -- Geometry-Aware PEFT with K-FAC Preconditioning, Fisher-Guided Reprojection, and Dynamic Rank Adaptation},
       author={Pritish Saha and Chandrav Rajbangshi and Rudra Goyal and Mohit Goyal and Anurag Deo and Biswajit Roy and Ningthoujam Dhanachandra Singh and Raxit Goswami and Amitava Das},
       year={2026},
       eprint={2601.00231},
       archivePrefix={arXiv},
       primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2601.00231}, 
+      url={https://arxiv.org/abs/2601.00231}
 }
 ```
 
