@@ -54,41 +54,47 @@ Gated GRIT builds on the GRIT optimization pipeline. At a high level, the implem
 
 The implementation is designed to retain the parameter efficiency of LoRA while using curvature information to guide optimization in the low-rank subspace.
 
+
 ## SuperGate mechanism
 
-For a LoRA update
+For a LoRA update, the weight matrix is expressed as:
 
-\[
-\Delta W = BA,
-\]
+$$
+\Delta W = BA
+$$
 
-the implementation maintains curvature-related covariance estimates for the low-rank factors. After the relevant K-FAC factors are available, the SuperGate computation uses the eigenspectrum of the rank-space covariance associated with the LoRA-A side.
+The implementation maintains curvature-related covariance estimates for the low-rank factors. The SuperGate mechanism uses eigenvalue information from the rank-space covariance associated with the LoRA-A side.
 
-Let the non-negative eigenvalues be \(\lambda_1,\ldots,\lambda_r\). The implementation forms normalized rank-wise weights:
+Let the non-negative eigenvalues be $\lambda_1, \lambda_2, \ldots, \lambda_r$. The normalized rank-wise gate values are computed as:
 
-\[
-g_i = \frac{\lambda_i}{\sum_j \lambda_j},
-\]
+$$
+g_i = \frac{\lambda_i}{\sum_{j=1}^{r}\lambda_j}
+$$
 
-followed by a configurable lower-floor operation and renormalization. The resulting vector \(g\) has one value per LoRA rank direction.
+A configurable lower-floor operation is subsequently applied, followed by renormalization. The resulting gate vector $g$ contains one value for each LoRA rank direction.
 
-After K-FAC preconditioning, the implementation applies the same rank-wise weights to the corresponding dimensions of the two LoRA factors:
+After K-FAC preconditioning, the implementation applies the same rank-wise weights to the corresponding dimensions of both LoRA factors:
 
-\[
+$$
 \widetilde{\nabla A}_{i,:}
 \leftarrow
-g_i\,\widetilde{\nabla A}_{i,:},
-\qquad
+g_i \widetilde{\nabla A}_{i,:}
+$$
+
+$$
 \widetilde{\nabla B}_{:,i}
 \leftarrow
-g_i\,\widetilde{\nabla B}_{:,i}.
-\]
+g_i \widetilde{\nabla B}_{:,i}
+$$
 
-Here, \(\widetilde{\nabla A}\) and \(\widetilde{\nabla B}\) denote the preconditioned gradients. In the current implementation, the gate vector is derived from curvature statistics; it is not an independently learned trainable parameter.
+Here, $\widetilde{\nabla A}$ and $\widetilde{\nabla B}$ denote the preconditioned gradients.
 
-The gates are associated with individual LoRA modules and are refreshed when the relevant curvature factors are updated. This allows the optimization process to use module-specific rank-wise modulation.
+In the current implementation, the gate vector is derived from curvature statistics rather than being introduced as an independently learned trainable parameter.
 
-**Important distinction:** SuperGate is a gradient-modulation mechanism. It should not be interpreted as hard pruning of LoRA ranks. Any effective-rank or sparsity analysis is a separate diagnostic of the resulting gate values.
+The gates are associated with individual LoRA modules and are refreshed when the relevant curvature factors are updated. This allows module-specific rank-wise modulation during optimization.
+
+**Important distinction:** SuperGate is a gradient-modulation mechanism, not hard pruning of LoRA ranks. Effective-rank and sparsity analyses are separate diagnostics of the resulting gate distributions.
+
 
 ## Models and tasks
 
@@ -179,11 +185,16 @@ The larger experimental protocol being used for the main evaluation is:
 
 With 8,000 training examples, an effective batch size of 4, and three epochs, the nominal training budget is:
 
-\[
-\frac{8000}{4}\times 3 = 6000
-\]
+$$
+\text{Total steps}
+=
+\frac{8000}{4}\times 3
+=
+6000
+$$
 
-optimizer steps, assuming the full training split is retained and the dataloader does not drop additional examples.
+This assumes the full training split is retained and the dataloader does not drop additional examples.
+
 
 The validation split is retained for evaluation or analysis where applicable, but the final training runs do not perform validation-based checkpoint selection. Final test evaluation is conducted after training using the same generation and metric procedures across methods.
 
