@@ -6,7 +6,7 @@ Gated GRIT is a curvature-aware extension of **GRIT (Geometry-Aware Parameter-Ef
 
 Unlike conventional gating mechanisms that introduce additional trainable parameters, Gated GRIT derives its gates from curvature statistics already computed by GRIT. The resulting mechanism, referred to as **SuperGate**, assigns different levels of emphasis to individual low-rank directions while retaining the parameter budget of the underlying LoRA configuration.
 
-> **Project status:** Research project. The paper reports experiments on visual question answering using Gemma-3-4B and Llama-3.2-11B-Vision. Further multimodal experiments and analysis are ongoing. The results below are the results reported in the current paper; they should be distinguished from any subsequent or expanded experimental runs.
+> **Project status:** The paper is under revision after ACL Rolling Review (2026). It reports visual question answering experiments on Gemma-3-4B and Llama-3.2-11B-Vision. Further multimodal experiments and analysis are ongoing, and the results below are those of the submitted version.
 
 ---
 
@@ -306,7 +306,7 @@ The reported train-validation-test split is:
 
 The paper evaluates the methods under the same dataset split and experimental protocol.
 
-Additional experiments on image captioning and RefCOCO are part of the broader multimodal research direction and should be reported separately from the VQA Online results in the paper.
+Image-captioning, visual-grounding and RefCOCO experiments are ongoing and are not part of the reported results.
 
 ---
 
@@ -362,19 +362,18 @@ All methods use identical target modules and matched parameter budgets for each 
 | Effective batch size | 4 |
 | Epochs | 3 |
 | Learning rate | 2 × 10⁻⁶ |
-| Gemma Gated GRIT learning rate | 2 × 10⁻⁶ |
 | Precision | BF16 |
 | Maximum sequence length | 1024 |
 | Optimizer | AdamW |
 | Warmup steps | 100 |
 
-The exact method-specific configuration should be taken from the corresponding experiment notebook.
+Method-specific settings, such as rank-dependent warmup, are defined in the corresponding experiment notebook.
 
 ---
 
 ## Results
 
-The following tables reproduce the main results reported in the paper on the VQA Online benchmark.
+The tables below report the results from our ACL Rolling Review submission (2026) on the VQA Online benchmark. Results from the ongoing revision will be added once complete.
 
 ### Gemma 3 4B IT
 
@@ -489,23 +488,20 @@ The rank-8 configurations operate in a higher entropy regime than their rank-4 c
 
 ## Repository Organization
 
-The experiments are notebook-based. A suggested organization for a cleaned public release is:
+The experiments are notebook-based, with one notebook per method, backbone, rank and seed.
 
 ```text
-Gated-GRIT/
-├── README.md
-├── notebooks/
-│   ├── image_captioning/
-│   ├── vqa/
-│   └── refcoco/
-├── results/
-│   ├── preliminary/
-│   └── final/
-├── figures/
-└── requirements.txt
+GATED-GRIT/
+├── VQA/                       # VQA Online: LoRA, AdaLoRA, GRIT, Gated GRIT (Gemma, Llama; ranks 4/8; seeds 41–43)
+├── IMAGE_CAP/                 # Image captioning, including random and magnitude gate ablations
+├── VISUAL_GROUNDING/          # Visual grounding
+├── RefCOCO/                   # RefCOCO (Gemma 3 4B, rank 8)
+├── visual_grounding_recoco/   # Script-based RefCOCO+ pipeline: training, evaluation and spectrum plots
+├── GEMMA.zip, LLAMA.zip       # Archived notebook copies grouped by backbone
+└── README.md
 ```
 
-Adapt this structure to the actual files included in the repository. Do not commit model checkpoints, private access tokens, cached datasets, or large temporary training artifacts unless there is a specific reason to distribute them.
+> **Note on notebook outputs:** several seed- and rank-variant notebooks were created by duplicating a completed run and changing its configuration. Their saved cell outputs may therefore belong to the original run rather than to the configuration shown. Treat the code and configuration as authoritative, and re-run a notebook to obtain its results.
 
 ## Installation
 
@@ -521,7 +517,7 @@ pip install rouge-score bert-score nltk pyemd
 pip install git+https://github.com/AIPHES/emnlp19-moverscore.git
 ```
 
-Exact package versions should be pinned in a release-specific `requirements.txt` after the environment used for the experiments has been frozen and tested.
+Package versions were not pinned for these experiments. The RefCOCO+ pipeline includes its own `visual_grounding_recoco/requirements_refcoco.txt`.
 
 ### Hugging Face Authentication
 
@@ -579,6 +575,23 @@ The current study has several limitations:
 Further work includes evaluating Gated GRIT across additional multimodal tasks, studying gate distributions at greater depth, and examining the relationship between curvature-derived allocation and downstream performance.
 
 ---
+
+## Citation
+
+The Gated GRIT paper is under review; a citation will be added once it is publicly available. If you use this work, please cite the underlying GRIT paper:
+
+
+```bibtex
+@misc{saha2026grit,
+  title         = {GRIT: Geometry-Aware PEFT with K-FAC Preconditioning, Fisher-Guided Reprojection, and Dynamic Rank Adaptation},
+  author        = {Saha, Pritish and Rajbangshi, Chandrav and Goyal, Rudra and Goyal, Mohit and Deo, Anurag and Roy, Biswajit and Singh, Ningthoujam Dhanachandra and Goswami, Raxit and Das, Amitava},
+  year          = {2026},
+  eprint        = {2601.00231},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  url           = {https://arxiv.org/abs/2601.00231}
+}
+```
 
 ## Acknowledgements
 
