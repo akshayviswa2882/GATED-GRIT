@@ -1,7 +1,3 @@
-from pathlib import Path
-
-readme = r'''# Gated GRIT
-
 **Geometry-aware parameter-efficient fine-tuning with curvature-derived rank allocation for multimodal vision-language models.**
 
 Gated GRIT is a curvature-aware extension of **GRIT (Geometry-Aware Parameter-Efficient Fine-Tuning)** for multimodal vision-language models. It uses Fisher-spectrum information obtained through Kronecker-Factored Approximate Curvature (K-FAC) to derive rank-wise importance weights and modulate low-rank adaptation.
@@ -582,19 +578,7 @@ Further work includes evaluating Gated GRIT across additional multimodal tasks, 
 
 ---
 
-## Citation
-
-If you use this work, please cite the Gated GRIT paper and the underlying GRIT work.
-
-**Gated GRIT:**
-
-```bibtex
-@article{gatedgrit2026,
-  title   = {Gated GRIT: Geometry-Aware Parameter-Efficient Fine-Tuning for Multimodal Vision-Language Models},
-  author  = {Anonymous},
-  year    = {2026}
-}
-```
+## Citation [paper referred for the work]
 
 **GRIT:**
 
@@ -609,13 +593,7 @@ If you use this work, please cite the Gated GRIT paper and the underlying GRIT w
   url           = {https://arxiv.org/abs/2601.00231}
 }
 ```
-
-The Gated GRIT citation should be updated with the final author list and publication details when the paper is publicly released.
-
 ## Acknowledgements
 
 This work builds on the GRIT research direction and explores its extension to multimodal vision-language models. We acknowledge the authors and maintainers of the underlying models, datasets, libraries, and evaluation tools used in the experiments.
 '''
-path = Path("/mnt/data/README_Gated_GRIT_paper_equations.md")
-path.write_text(readme, encoding="utf-8")
-print(f"Created {path} ({len(readme.split())} words)")
