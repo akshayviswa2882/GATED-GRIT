@@ -1,3 +1,5 @@
+# Gated GRIT
+
 **Geometry-aware parameter-efficient fine-tuning with curvature-derived rank allocation for multimodal vision-language models.**
 
 Gated GRIT is a curvature-aware extension of **GRIT (Geometry-Aware Parameter-Efficient Fine-Tuning)** for multimodal vision-language models. It uses Fisher-spectrum information obtained through Kronecker-Factored Approximate Curvature (K-FAC) to derive rank-wise importance weights and modulate low-rank adaptation.
@@ -144,7 +146,7 @@ A_f = V\Lambda V^\top
 where:
 
 ```math
-\Lambda = \operatorname{diag}(\lambda_1,\lambda_2,\ldots,\lambda_r)
+\Lambda = \mathrm{diag}(\lambda_1,\lambda_2,\ldots,\lambda_r)
 ```
 
 Here:
@@ -191,7 +193,7 @@ The diagonal SuperGate matrix is then defined as:
 
 ```math
 \Gamma =
-\operatorname{diag}(g_1,g_2,\ldots,g_r)
+\mathrm{diag}(g_1,g_2,\ldots,g_r)
 ```
 
 In the reported implementation, the minimum SuperGate floor is:
@@ -215,7 +217,7 @@ Given the diagonal SuperGate matrix `Γ`, the standard LoRA update is modified a
 where:
 
 ```math
-\Gamma = \operatorname{diag}(g_1,g_2,\ldots,g_r)
+\Gamma = \mathrm{diag}(g_1,g_2,\ldots,g_r)
 ```
 
 Expanding the gated update gives:
@@ -360,7 +362,7 @@ All methods use identical target modules and matched parameter budgets for each 
 | Effective batch size | 4 |
 | Epochs | 3 |
 | Learning rate | 2 × 10⁻⁶ |
-| Gemma Gated GRIT learning rate | 8 × 10⁻⁶ |
+| Gemma Gated GRIT learning rate | 2 × 10⁻⁶ |
 | Precision | BF16 |
 | Maximum sequence length | 1024 |
 | Optimizer | AdamW |
@@ -578,7 +580,19 @@ Further work includes evaluating Gated GRIT across additional multimodal tasks, 
 
 ---
 
-## Citation [paper referred for the work]
+## Citation
+
+If you use this work, please cite the Gated GRIT paper and the underlying GRIT work.
+
+**Gated GRIT:**
+
+```bibtex
+@article{gatedgrit2026,
+  title   = {Gated GRIT: Geometry-Aware Parameter-Efficient Fine-Tuning for Multimodal Vision-Language Models},
+  author  = {Anonymous},
+  year    = {2026}
+}
+```
 
 **GRIT:**
 
@@ -593,7 +607,9 @@ Further work includes evaluating Gated GRIT across additional multimodal tasks, 
   url           = {https://arxiv.org/abs/2601.00231}
 }
 ```
+
+The Gated GRIT citation should be updated with the final author list and publication details when the paper is publicly released.
+
 ## Acknowledgements
 
 This work builds on the GRIT research direction and explores its extension to multimodal vision-language models. We acknowledge the authors and maintainers of the underlying models, datasets, libraries, and evaluation tools used in the experiments.
-'''
