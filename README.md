@@ -576,23 +576,6 @@ Further work includes evaluating Gated GRIT across additional multimodal tasks, 
 
 ---
 
-## Citation
-
-The Gated GRIT paper is under review; a citation will be added once it is publicly available. If you use this work, please cite the underlying GRIT paper:
-
-
-```bibtex
-@misc{saha2026grit,
-  title         = {GRIT: Geometry-Aware PEFT with K-FAC Preconditioning, Fisher-Guided Reprojection, and Dynamic Rank Adaptation},
-  author        = {Saha, Pritish and Rajbangshi, Chandrav and Goyal, Rudra and Goyal, Mohit and Deo, Anurag and Roy, Biswajit and Singh, Ningthoujam Dhanachandra and Goswami, Raxit and Das, Amitava},
-  year          = {2026},
-  eprint        = {2601.00231},
-  archivePrefix = {arXiv},
-  primaryClass  = {cs.LG},
-  url           = {https://arxiv.org/abs/2601.00231}
-}
-```
-
 ## Acknowledgements
 
 This work builds on the GRIT research direction and explores its extension to multimodal vision-language models. We acknowledge the authors and maintainers of the underlying models, datasets, libraries, and evaluation tools used in the experiments.
