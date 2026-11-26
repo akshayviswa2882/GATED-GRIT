@@ -315,11 +315,14 @@ Gated GRIT is based on the GRIT line of work. Please also cite the relevant data
 **GRIT reference:**
 
 ```bibtex
-@article{saha2026geometryawarepeft,
-  title   = {Geometry-Aware PEFT with K-FAC Preconditioning, Fisher-Guided Reprojection, and Dynamic Rank},
-  author  = {Saha, Pritish and Rajbangshi, Chandrav and Goyal, Rudra and Goyal, Mohit and Deo, Anurag and Roy, Biswajit and Singh, Ningthoujam Dhanachandra and Goswami, Raxit and Das, Amitava},
-  journal = {arXiv preprint arXiv:2601.00231},
-  year    = {2026}
+@misc{saha2026gritgeometryawarepeft,
+      title={GRIT -- Geometry-Aware PEFT with K-FACPreconditioning, Fisher-Guided Reprojection, andDynamic Rank Adaptation}, 
+      author={Pritish Saha and Chandrav Rajbangshi and Rudra Goyal and Mohit Goyal and Anurag Deo and Biswajit Roy and Ningthoujam Dhanachandra Singh and Raxit Goswami and Amitava Das},
+      year={2026},
+      eprint={2601.00231},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2601.00231}, 
 }
 ```
 
